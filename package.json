@@ -2,7 +2,7 @@
   "name": "agent-maestro",
   "displayName": "Agent Maestro",
   "description": "Turn VS Code into your compliant AI playground! With Agent Maestro, spin up Cline or Roo on demand and plug Claude Code or Codex straight in through an OpenAI/Anthropic-compatible API.",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "icon": "assets/icons/icon.png",
   "publisher": "Joouis",
   "repository": "https://github.com/Joouis/agent-maestro",
@@ -92,6 +92,14 @@
           "minimum": 1,
           "maximum": 2,
           "description": "Scale factor for calculating `model_context_window` in Codex config. This compensates for the difference between local and API token counting. A value of 1.3 means the local context window is set to 130% of the model's reported max input tokens.",
+          "scope": "application"
+        },
+        "agent-maestro.anthropic.tokenCountScaleFactor": {
+          "type": "number",
+          "default": 1.25,
+          "minimum": 1,
+          "maximum": 2,
+          "description": "Scale factor applied to token counts from VS Code's API to approximate Anthropic's actual token usage. Higher values provide more buffer against context window limits but reduce usable context. Default 1.25 means VS Code token counts are multiplied by 1.25.",
           "scope": "application"
         }
       }
