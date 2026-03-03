@@ -2,7 +2,7 @@
   "name": "agent-maestro",
   "displayName": "Agent Maestro",
   "description": "Turn VS Code into your compliant AI playground! With Agent Maestro, spin up Cline or Roo on demand and plug Claude Code or Codex straight in through an OpenAI/Anthropic-compatible API.",
-  "version": "2.8.1",
+  "version": "2.8.2",
   "icon": "assets/icons/icon.png",
   "publisher": "Joouis",
   "repository": "https://github.com/Joouis/agent-maestro",
@@ -97,7 +97,7 @@
         "agent-maestro.anthropic.tokenCountScaleFactor": {
           "type": "number",
           "default": 1.25,
-          "minimum": 1,
+          "minimum": 0.1,
           "maximum": 2,
           "description": "Scale factor applied to token counts from VS Code's API to approximate Anthropic's actual token usage. Higher values provide more buffer against context window limits but reduce usable context. Default 1.25 means VS Code token counts are multiplied by 1.25.",
           "scope": "application"
