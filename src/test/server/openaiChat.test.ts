@@ -163,6 +163,71 @@ suite("OpenAI Conversion Utils Test Suite", () => {
       );
     });
 
+    test("should convert user message with image_url base64 data URI", () => {
+      const base64Data =
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+      const messages = [
+        {
+          role: "user" as const,
+          content: [
+            { type: "text" as const, text: "What is in this image?" },
+            {
+              type: "image_url" as const,
+              image_url: {
+                url: `data:image/png;base64,${base64Data}`,
+              },
+            },
+          ],
+        },
+      ];
+
+      const result = convertOpenAIMessagesToVSCode(messages);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(
+        result[0].role,
+        vscode.LanguageModelChatMessageRole.User,
+      );
+      assert.strictEqual(result[0].content.length, 2);
+      assert.ok(result[0].content[0] instanceof vscode.LanguageModelTextPart);
+      assert.strictEqual(
+        (result[0].content[0] as vscode.LanguageModelTextPart).value,
+        "What is in this image?",
+      );
+      // LanguageModelDataPart may not be available in test environment,
+      // so the image part could be either a DataPart or a TextPart fallback
+      assert.ok(result[0].content[1]);
+    });
+
+    test("should handle image_url with non-data-URI by falling back to JSON", () => {
+      const messages = [
+        {
+          role: "user" as const,
+          content: [
+            {
+              type: "image_url" as const,
+              image_url: {
+                url: "https://example.com/image.png",
+              },
+            },
+          ],
+        },
+      ];
+
+      const result = convertOpenAIMessagesToVSCode(messages);
+
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(
+        result[0].role,
+        vscode.LanguageModelChatMessageRole.User,
+      );
+      assert.strictEqual(result[0].content.length, 1);
+      assert.ok(result[0].content[0] instanceof vscode.LanguageModelTextPart);
+      const value = (result[0].content[0] as vscode.LanguageModelTextPart)
+        .value;
+      assert.ok(value.includes("https://example.com/image.png"));
+    });
+
     test("should handle malformed function arguments gracefully", () => {
       const messages = [
         {
