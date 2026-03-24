@@ -256,7 +256,7 @@ export function registerAnthropicRoutes(app: OpenAPIHono) {
       logger.info(
         `→ /v1/messages | model: ${
           model === effectiveModelId ? model : `${model} → ${effectiveModelId}`
-        } | input: ${inputTokenCount.original} → ${inputTokenCount.calibrated}`,
+        } | input: ${inputTokenCount.original} → ${inputTokenCount.calibrated} | maxInput: ${maxInputTokens}`,
       );
 
       // 4. Build VS Code Language Model request options
@@ -517,9 +517,13 @@ export function registerAnthropicRoutes(app: OpenAPIHono) {
 
       if (isContextWindowExceeded) {
         const model = rawRequestBody?.model ?? effectiveModelId;
+        const modelLabel =
+          model === effectiveModelId
+            ? effectiveModelId
+            : `${model} → ${effectiveModelId}`;
 
         logger.warn(
-          `⚠ /v1/messages | context window exceeded | input: ${inputTokens} > max: ${maxInputTokens}`,
+          `⚠ /v1/messages | context window exceeded | input: ${inputTokens} > max: ${maxInputTokens} | model: ${modelLabel}`,
         );
 
         vscode.window.showWarningMessage(
