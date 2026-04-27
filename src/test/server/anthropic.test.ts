@@ -206,15 +206,53 @@ suite("Anthropic Conversion Utils Test Suite", () => {
       assert.strictEqual(result[0].description, "Get the weather for a city");
     });
 
-    test("should handle built-in tools without input_schema", () => {
-      const tools = [{ name: "bash", type: "bash_20250124" }];
+    test("should drop unsupported server-side tools without input_schema", () => {
+      const tools = [
+        { name: "bash", type: "bash_20250124" },
+        { name: "web_search", type: "web_search_20250305", max_uses: 5 },
+        { name: "computer", type: "computer_20250124" },
+        {
+          name: "get_weather",
+          input_schema: {
+            type: "object",
+            properties: { city: { type: "string" } },
+          },
+        },
+      ];
 
       const result = convertAnthropicToolToVSCode(tools as any);
 
       assert.ok(result);
-      assert.strictEqual(result[0].name, "bash");
-      assert.strictEqual(result[0].description, "bash_20250124");
-      assert.deepStrictEqual(result[0].inputSchema, tools[0]);
+      assert.strictEqual(
+        result.length,
+        1,
+        "server-side tools without input_schema should be dropped",
+      );
+      assert.strictEqual(result[0].name, "get_weather");
+      assert.deepStrictEqual(result[0].inputSchema, tools[3].input_schema);
+    });
+
+    test("should keep custom tools with type: 'custom'", () => {
+      const tools = [
+        {
+          name: "lookup",
+          type: "custom",
+          description: "Look something up",
+          input_schema: {
+            type: "object",
+            properties: { id: { type: "string" } },
+            required: ["id"],
+          },
+        },
+      ];
+
+      const result = convertAnthropicToolToVSCode(tools as any);
+
+      assert.ok(result);
+      assert.strictEqual(result.length, 1);
+      assert.strictEqual(result[0].name, "lookup");
+      assert.strictEqual(result[0].description, "Look something up");
+      assert.deepStrictEqual(result[0].inputSchema, tools[0].input_schema);
     });
 
     test("should return undefined for undefined tools", () => {
